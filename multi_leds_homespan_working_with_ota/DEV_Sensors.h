@@ -86,7 +86,43 @@ struct DEV_HumSensor : Service::HumiditySensor {
       LOG1(humidity);
       LOG1(" ; ");
     }
-  } // loop
+  } // loop2
 };
 
 //////////////////////////////////
+
+
+struct DEV_MotionSensor : Service::MotionSensor {                       // Motion sensor
+
+  SpanCharacteristic *movement;                                         // reference to the MotionDetected Characteristic
+  int sensorPin;                                                        // pin number of the sensor
+
+  DEV_MotionSensor(int sensorPin) : Service::MotionSensor() {
+    
+    this->sensorPin = sensorPin;
+    pinMode(sensorPin,INPUT);
+    boolean motion = digitalRead(sensorPin);
+    movement=new Characteristic::MotionDetected(motion);                // instantiate the MotionDetected Characteristic
+
+  } // end constructor
+
+  void loop() {
+    // buttonState
+    pinMode(25,OUTPUT);
+    pinMode(26,OUTPUT);
+    boolean motion = digitalRead(sensorPin);
+    if (motion != movement->getVal()) {
+      movement->setVal(motion);
+      if (motion == true) {
+        char c[64];
+        digitalWrite(25,HIGH);
+        digitalWrite(26,HIGH);
+        sprintf(c,"Motion was detected\n");
+        LOG1(c);          
+      }else{
+        digitalWrite(25,LOW);
+        digitalWrite(26,LOW);
+      }
+    }
+  }
+};
