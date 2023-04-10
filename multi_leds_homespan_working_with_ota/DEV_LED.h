@@ -14,7 +14,9 @@ struct DEV_LED : Service::LightBulb {               // ON/OFF LED
   
   DEV_LED(int ledPin) : Service::LightBulb(){       // constructor() method
 
-    power=new Characteristic::On(true);                 
+                       // instantiate the required On Characteristic without setting initial value
+  new Characteristic::Brightness(100);
+    power=new Characteristic::On();                 
     this->ledPin=ledPin;                            
     pinMode(ledPin,OUTPUT);                         
     
@@ -33,7 +35,7 @@ struct DEV_LED : Service::LightBulb {               // ON/OFF LED
     LOG1("  New Power=");
     LOG1(power->getNewVal()?"true":"false");
     LOG1("\n");
-
+    
     digitalWrite(ledPin,power->getNewVal());      
    
     return(true);                               // return true

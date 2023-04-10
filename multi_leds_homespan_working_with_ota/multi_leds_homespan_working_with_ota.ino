@@ -25,46 +25,20 @@
 
  ********************************************************************************/
 
-////////////////////////////////////////////////////////////
-//                                                        //
-//    HomeSpan: A HomeKit implementation for the ESP32    //
-//    ------------------------------------------------    //
-//                                                        //
-// Example 10: Controlling a full-color RGB LED           //
-//                                                        //
-//                                                        //
-////////////////////////////////////////////////////////////
-
 #include "HomeSpan.h"
 #include "DEV_LED.h"
 #include "DEV_Identify.h"
 #include "DEV_Sensors.h"
-//int sensor = 35;
-int leds[10] = {26, 25, 23, 32, 18, 19, 14, 27, 13};
-//unsigned long previousMillis = 0;
-//const long interval = 30000;
 
 void setup() {
 
-  // Example 10 illustrates how to control an RGB LED to set any color and brightness.
-  // The configuration below should look familiar by now.  We've created a new derived Service,
-  // call RgbLED to house all the required logic.  You'll find all the code in DEV_LED.h.
-  // For completeness, this configuration also contains an on/off LED and a dimmable LED as shown
-  // in prior examples.
-  for (int i = 0; i < 10; i++) {
-    pinMode(leds[i], OUTPUT);
-  }
-
+  // Used to control all 6 lights in my room while giving me temperature and 
+  //humidity sensor and having a 5 mins moviment detector to turn off the main lights.
+  
   Serial.begin(115200);
 
-  digitalWrite(25, HIGH);
-  digitalWrite(26, HIGH);
-
-
-  homeSpan.enableOTA(true);
-  homeSpan.begin(Category::Bridges, "HomeSpan Bridge");
-
-  //pinMode(sensor,INPUT);
+  homeSpan.enableOTA();
+  homeSpan.begin(Category::Bridges, "magic chip");
 
   new SpanAccessory();
   new DEV_Identify("Bridge #1", "Elongated Tusk Inc.", "Cyka Blyat", "Le potato", "6.9", 3);
@@ -72,47 +46,50 @@ void setup() {
   new Characteristic::Version("1.1.0");
 
   new SpanAccessory();
-  new DEV_Identify("Printer LED", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
-  new DEV_LED(26);                                                               // Create an On/Off LED attached to pin 16
+  new DEV_Identify("Printer", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
+  new DEV_LED(26);
 
   new SpanAccessory();
-  new DEV_Identify("Desk LEDs", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
+  new DEV_Identify("Desk", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
   new DEV_LED(25);
 
   new SpanAccessory();
-  new DEV_Identify("On/Off LED 12", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
-  new DEV_LED(12);
+  new DEV_Identify("UV", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
+  new DEV_DimmableLED(12);
+
+//  new SpanAccessory();
+//  new DEV_Identify("On/Off LED 23", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
+//  new DEV_DimmableLED(23);
 
   new SpanAccessory();
-  new DEV_Identify("On/Off LED 23", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
-  new DEV_LED(23);
-
-  new SpanAccessory();
-  new DEV_Identify("Picture LED", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
+  new DEV_Identify("Painting", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
   new DEV_DimmableLED(32);
 
-  new SpanAccessory();
-  new DEV_Identify("On/Off LED 18", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
-  new DEV_LED(18);
+//  new SpanAccessory();
+//  new DEV_Identify("On/Off LED 18", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
+//  new DEV_DimmableLED(18);
 
   new SpanAccessory();
-  new DEV_Identify("IR led", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
+  new DEV_Identify("IR", "Elongated Tusk Inc.", "Cyka Blyat", "600mA LED", "6.9", 0);
   new DEV_DimmableLED(19);
 
 
   new SpanAccessory();
-  new DEV_Identify("RGB LED", "Elongated Tusk Inc.", "Cyka Blyat", "200mA LED", "6.9", 0);
-  new DEV_RgbLED(14, 27, 13);                                                    // Create an RGB LED attached to pins 32,22,23 (for R, G, and B LED anodes)
+  new DEV_Identify("RGB", "Elongated Tusk Inc.", "Cyka Blyat", "200mA LED", "6.9", 0);
+  new DEV_RgbLED(14, 27, 13);
 
 
   new SpanAccessory();
-  new DEV_Identify("Temp Sensor", "Elongated Tusk Inc.", "MeSensor", "Sensor", "6.9", 0);// Create a Temperature Sensor (see DEV_Sensors.h for definition)
+  new DEV_Identify("Temp Sensor", "Elongated Tusk Inc.", "MeSensor", "Sensor", "6.9", 0);
   new DEV_TempSensor();
 
   new SpanAccessory();
   new DEV_Identify("Humidity Sensor", "Elongated Tusk Inc.", "AirWetBrrrSensor", "Sensor", "6.9", 0);
-  // Create a Humidity Sensor (see DEV_Sensors.h for definition)
   new DEV_HumSensor();
+
+  new SpanAccessory();
+  new DEV_Identify("Motion Sensor", "Elongated Tusk Inc.", "MovimentoSensore", "Sensor", "6.9", 0);
+  new DEV_MotionSensor(4);
 
 } // end of setup()
 
@@ -120,16 +97,4 @@ void setup() {
 
 void loop() {
   homeSpan.poll();
-
-  /*
-    unsigned long currentMillis = millis();
-    if (digitalRead(sensor) == 1){
-    for (int i = 0; i < 10; i++){
-      pinMode(leds[i],OUTPUT);
-    }previousMillis = millis();}
-
-    if (currentMillis - previousMillis >= interval && digitalRead(sensor) == 1) {
-        for (int i = 0; i < 10; i++){
-      pinMode(leds[i],INPUT);
-    }}*/
 } // end of loop()
